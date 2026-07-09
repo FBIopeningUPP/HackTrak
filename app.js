@@ -292,6 +292,19 @@ const Views = {
                         </div>
                     `;
                 }).join('');
+
+                const projectBreakdown = Store.data.projects.length === 0
+                    ? `<p style="font-weight: bold; font-size: 1.2rem;">No projects initialized.</p>`
+                    : `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">` +
+                      Store.data.projects.map(p => `
+                          <div style="background: var(--bg-color); padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;" class="neu-border neu-shadow">
+                              <div>
+                                  <div style="font-weight: 900; font-size: 1.2rem; margin-bottom: 0.25rem; word-break: break-word;">${p.name}</div>
+                                  <div style="font-weight: bold; font-size: 0.8rem; color: #555;">${p.archived ? 'ARCHIVED' : 'ACTIVE'}</div>
+                              </div>
+                              <div style="font-weight: 900; font-size: 1.5rem; white-space: nowrap;">${Store.helpers.getProjectTotalHours(p.id)} <span style="font-size: 0.8rem;">HRS</span></div>
+                          </div>
+                      `).join('') + `</div>`;
             
             return `
                 <h2 class="view-title">Command Center</h2>
@@ -319,6 +332,10 @@ const Views = {
                 <div style="background: var(--white); padding: 2rem; border: 4px solid var(--text-color); box-shadow: 8px 8px 0px var(--text-color);">
                     ${goalsRender}
                 </div>
+                <h3 style="font-size: 2.5rem; font-weight: 900; text-transform: uppercase; margin-bottom: 1.5rem; letter-spacing: -1px; margin-top: 3.5rem;">Project Breakdown</h3>
+                    <div style="background: var(--white); padding: 2rem; border: 4px solid var(--text-color); box-shadow: 8px 8px 0px var(--text-color); margin-bottom:3.5rem;">
+                        ${projectBreakdown}
+                    </div>
             `;
         }
 };
