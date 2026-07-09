@@ -151,14 +151,20 @@ const Views = {
             : `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; align-items: stretch;">` +
                 activeProjects.map(p => `
                    <div style="background: var(--white); padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;" class="neu-border neu-shadow"> 
-                   <div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <h3 style="font-weight: 900; font-size: 1.5rem; word-break: break-word;">${p.name}</h3>
-                            <span style="background: var(--primary); padding: 0.25rem 0.5rem; font-weight: 900; white-space: nowrap;" class="neu-border">${Store.helpers.getProjectTotalHours(p.id)} HRS</span>
+                       <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h3 style="font-weight: 900; font-size: 1.5rem; word-break: break-word;">${p.name}</h3>
+                                <span style="background: var(--primary); padding: 0.25rem 0.5rem; font-weight: 900; white-space: nowrap;" class="neu-border">${Store.helpers.getProjectTotalHours(p.id)} HRS</span>
+                            </div>
+                            <p style="font-weight: bold; margin-bottom: 1.5rem; font-size: 1rem; color: var(--text-color); opacity: 0.8;">${p.notes || 'No description provided.'}</p>
                         </div>
-                    </div>
-                    <div style="font-weight: 900; font-size: 0.9rem;">Launched: ${Store.helpers.formatDate(p.createdAt)}</div>
-                    </div>
+                        <div>
+                            <div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 1rem;">Launched: ${Store.helpers.formatDate(p.createdAt)}</div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button data-edit-project="${p.id}" style="flex-grow: 1; background: var(--tertiary); padding: 0.5rem; font-weight: 900; cursor: pointer; color: white;" class="neu-border neu-shadow">EDIT</button>
+                                <button data-archive-project="${p.id}" style="flex-grow: 1; background: var(--secondary); padding: 0.5rem; font-weight: 900; cursor: pointer;" class="neu-border neu-shadow">ARCHIVE</button>
+                            </div>
+                        </div>
                     </div>
                 `).join('') + `</div>`;
 
@@ -477,11 +483,28 @@ const UI = {
         if (mainElement) {
             mainElement.addEventListener('click', (e) => {
                 if (e.target.hasAttribute('data-archive-project')) {
-                    if (confirm("Archive this project? You won't be able to log new hours to it.")) {
-                        const projectId = e.target.getAttribute('data-archive-project');
-                        const proj = Store.data.projects.find(p => p.id === projectId);
-                        if (proj) {
-                            proj.archived = true;
+                    const projectId = e.target.getAttribute('data-archive-project');
+                    const proj = Store.data.projects.find(p => p.id === projectId);
+                    if (proj) {
+                        proj.archived = true;
+                        Store.save();
+                    }
+                }
+
+                if (e.target.hasAttribute('data-edit-project')) {
+                    const projectId = e.target.getAttribute('data-edit-project');
+                    const proj = Store.data.projects.find(p => p.id === projectId);
+
+                    if (proj) {
+                        const newName = prompt("Edit Project Name:", proj.name);
+                        if (newName !== null && newName.trim() !== '') {
+                            proj.name = newName.trim();
+
+                            const newNotes = prompt("Edit Project Notes:", proj.notes);
+                            if (newNotes !== null) {
+                                proj.notes = newNotes.trim();
+                            }
+
                             Store.save();
                         }
                     }
