@@ -173,6 +173,29 @@ const Views = {
                 ? `<option value="" disabled selected>No active projects. Go create one!</option>`
                 : activeProjects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
 
+            const unsubmittedHours = Store.data.hours.filter(h => !h.submitted);
+            const totalUnsubmitted = unsubmittedHours.reduce((sum, h) => sum + parseFloat(h.amount), 0);
+
+            const bankList = unsubmittedHours.length === 0
+                ? `<p style="font-weight: bold; font-size: 1.2rem;">Your bank is empty. Log some hours above.</p>`
+                : `<div style="display: flex; flex-direction: column; gap: 1rem;">` +
+                  unsubmittedHours.map(h => {
+                      const proj = Store.data.projects.find(p => p.id === h.projectId);
+                      return `
+                      <div style="background: var(--white); padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;" class="neu-border neu-shadow">
+                          <div>
+                              <div style="font-weight: 900; font-size: 1.3rem; margin-bottom: 0.25rem;">${proj ? proj.name : 'Unknown Project'}</div>
+                              <div style="font-weight: bold; font-size: 1rem;">${h.description}</div>
+                          </div>
+                          <div style="font-weight: 900; font-size: 2rem;">${h.amount} <span style="font-size: 1rem;">HRS</span></div>
+                      </div>
+                      `;
+                  }).join('') + `</div>`;
+
+            const submitBtn = unsubmittedHours.length > 0
+                ? `<button id="btn-submit-timesheet" style="background: var(--secondary); padding: 1.5rem; font-weight: 900; font-size: 1.5rem; width: 100%; margin-top: 2rem; cursor: pointer; text-transform: uppercase;" class="neu-border neu-shadow">Submit ${totalUnsubmitted} Hours to Timesheet</button>`
+                : '';
+
             return `
                 <h2 class="view-title">Timeline Logger</h2>
 
@@ -192,10 +215,13 @@ const Views = {
                     </form>
                 </div>
 
-                <div id="unsubmitted-bank">
-                    <!-- We will build the Bank ledger in the next step -->
-                    <h3 style="text-transform: uppercase; font-weight: 900; margin-bottom: 1rem;">Unsubmitted Bank</h3>
-                    <p>Your logged hours will appear here...</p>
+                <div id="unsubmitted-bank" style="margin-bottom: 3rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.5rem;">
+                        <h3 style="text-transform: uppercase; font-weight: 900; font-size: 1.8rem;">Unsubmitted Bank</h3>
+                        <span style="font-weight: 900; font-size: 1.2rem; background: var(--primary); padding: 0.5rem 1rem;" class="neu-border">${totalUnsubmitted}TOTAL HRS</span>
+                    </div>
+                    ${bankList}
+                    ${submitBtn}
                 </div>
             `;
         },
@@ -320,6 +346,26 @@ const UI = {
                     submitted: false
                 });
                 Store.save();
+            });
+        }
+        const submitTimesheetBtn = document.getElementById('btn-submit-timesheet');
+        if (submitTimesheetBtn) {
+            submitTimesheetBtn.addEventListener('click', () => {
+                if(confirm("Submit these hours? They will be locked into a Timesheet block.")) {
+                    const unsubmittedHours = Store.data.hours.filter(h => !h.submitted);
+                    const totalAmount = unsubmittedHours.reduce((sum, h) => sum + parseFloat(h.amount), 0);
+
+                    Store.data.submissions.push({
+                        id: Store.generateId(),
+                        timestamp: new Date().toISOString(),
+                        totalHours: totalAmount,
+                        status: 'approved',
+                    });
+
+                    unsubmittedHours.forEach(h => h.submitted = true);
+
+                    Store.save();
+                }
             });
         }
     }
