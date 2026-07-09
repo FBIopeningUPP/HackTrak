@@ -122,7 +122,6 @@ const Views = {
                         <input id="goal-cost" type="number" placeholder="Cost (USD)" required class="neu-border" style="padding: 0.8rem; width: 120px; outline: none;">
                         <button type="submit" style="background: var(--primary); padding: 0.8rem; font-weight: 900; cursor: pointer;" class="neu-border neu- shadow">+</button>
                     </form>
-
                     <!-- Rendered Goals -->
                     <div id="goals-list">
                         ${goalsList}
