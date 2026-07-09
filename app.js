@@ -117,7 +117,7 @@ const Views = {
                     <h3 style="margin-bottom: 1.5rem; color: white; text-transform: uppercase; font-weight: 900;">Custom Funding Goals</h3>
 
                     <!-- Add Goal Form -->
-                    <form id="add-goal-form" style="display: flex; gap: 0.5rem; margin-bottom: 2rem;">
+                    <form id="add-goal-form" style="display: flex; gap: 0.5rem; margin-bottom: 2rem; align-items: flex-start;">
                         <input id="goal-name" type="text" placeholder="Goal Name (e.g. Flight)" required class="neu-border" style="padding: 0.5rem; flex-grow: 1; outline: none;">
                         <input id="goal-cost" type="number" placeholder="Cost (USD)" required class="neu-border" style="padding: 0.5rem; width: 120px; outline: none;">
                         <button type="submit" style="background: var(--primary); padding: 0.8rem; font-weight: 900; cursor: pointer;" class="neu-border neu- shadow">+</button>
