@@ -127,7 +127,22 @@ const Views = {
                         ${goalsList}
                     </div>
                 </div>
+                <div style="background: var(--secondary); padding: 2rem;" class="neu-border neu-shadow">
+                        <h3 style="margin-bottom: 1.5rem; text-transform: uppercase; font-weight: 900;">Data Management</h3>
 
+                        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                            <div>
+                                <p style="font-weight: bold; margin-bottom: 0.5rem; font-size: 0.9rem;">Backup your database to a JSON file to prevent data loss.</p>
+                                <button id="btn-export-db" style="background: var(--white); padding: 1rem; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase;" class="neu-border neu-shadow">Export Database (.json)</button>
+                            </div>
+
+                            <div style="border-top: 4px solid var(--text-color); padding-top: 1.5rem;">
+                                <p style="font-weight: bold; margin-bottom: 0.5rem; font-size: 0.9rem;">Restore from a previous backup file.</p>
+                                <input type="file" id="import-file" accept=".json" style="margin-bottom: 1rem; font-weight: bold;">
+                                <button id="btn-import-db" style="background: var(--primary); padding: 1rem; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase;" class="neu-border neu-shadow">Import Database</button>
+                            </div>
+                        </div>
+                    </div>
             </div>
         `;
     },
@@ -222,16 +237,19 @@ const Views = {
                     <h3 style="margin-bottom: 1rem; color: white; text-transform: uppercase; font-weight: 900;">Log Work Hours</h3>
 
                     <form id="log-hours-form" style="display: flex; flex-direction: column; gap: 0.75rem;">
-                        <select id="log-project" required class="neu-border" style="padding: 0.75rem; font-size: 1.1rem; outline: none; cursor: pointer;">
-                            ${projectOptions}
-                        </select>
+                            <select id="log-project" required class="neu-border" style="padding: 0.75rem; font-size: 1.1rem; outline: none; cursor: pointer;">
+                                ${projectOptions}
+                            </select>
 
-                        <input id="log-amount" type="number" step="0.25" min="0.25" placeholder="Hours (e.g. 2.5)" required class="neu-border" style="padding: 0.75rem; font-size: 1.1rem; outline: none;">
+                            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                <input id="log-amount" type="number" step="0.25" min="0.25" placeholder="Hours (e.g. 2.5)" required class="neu-border" style="padding:0.75rem; font-size: 1.1rem; outline: none; flex-grow: 1;">
+                                <input id="log-date" type="date" required class="neu-border" style="padding: 0.75rem; font-size: 1.1rem; outline: none; flex-grow: 1;"value="${new Date().toISOString().split('T')[0]}">
+                            </div>
 
-                        <input id="log-desc" type="text" placeholder="What did you do?" required class="neu-border" style="padding: 0.75rem; font-size: 1.1rem; outline: none;">
+                            <input id="log-desc" type="text" placeholder="What did you do?" required class="neu-border" style="padding: 0.75rem; font-size: 1.1rem;outline: none;">
 
-                        <button type="submit" ${activeProjects.length === 0 ? 'disabled' : ''} style="background: var(--primary); padding: 1rem; font-weight: 900; font-size: 1.2rem; cursor: pointer; text-transform: uppercase;" class="neu-border neu-shadow">RECORD HOURS</button>
-                    </form>
+                            <button type="submit" ${activeProjects.length === 0 ? 'disabled' : ''} style="background: var(--primary); padding: 1rem; font-weight: 900;font-size: 1.2rem; cursor: pointer; text-transform: uppercase;" class="neu-border neu-shadow">RECORD HOURS</button>
+                        </form>
                 </div>
 
                 <div id="unsubmitted-bank" style="margin-bottom: 3rem;">
@@ -334,8 +352,12 @@ const Views = {
                 </div>
                 <h3 style="font-size: 2.5rem; font-weight: 900; text-transform: uppercase; margin-bottom: 1.5rem; letter-spacing: -1px; margin-top: 3.5rem;">Project Breakdown</h3>
                     <div style="background: var(--white); padding: 2rem; border: 4px solid var(--text-color); box-shadow: 8px 8px 0px var(--text-color); margin-bottom:3.5rem;">
-                        ${projectBreakdown}
-                    </div>
+                    ${projectBreakdown}
+                </div>
+                <div style="border-top: 4px solid var(--text-color); padding-top: 1.5rem; margin-top: 0.5rem;">
+                    <p style="font-weight: 900; margin-bottom: 0.5rem; font-size: 1rem; color: var(--text-color);">Danger Zone</p>
+                    <button id="btn-nuke-db" style="background: var(--secondary); padding: 1rem; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase;" class="neu-border neu-shadow">Factory Reset App</button>
+                </div>
             `;
         }
 };
@@ -455,7 +477,7 @@ const UI = {
                     projectId: document.getElementById('log-project').value,
                     amount: parseFloat(document.getElementById('log-amount').value),
                     description: document.getElementById('log-desc').value.trim(),
-                    createdAt: new Date().toISOString(),
+                    createdAt: document.getElementById('log-date').value + "T12:00:00.000Z",
                     submitted: false
                 });
                 Store.save();
@@ -488,6 +510,59 @@ const UI = {
                     const hourId = e.target.getAttribute('data-delete-hour');
                     Store.data.hours = Store.data.hours.filter(h => h.id !== hourId);
                     Store.save();
+                }
+            });
+        }
+        const exportBtn = document.getElementById('btn-export-db');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(Store.data));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "hacktrak_backup_" + new Date().toISOString().split('T')[0] + ".json");
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+            });
+        }
+        const importBtn = document.getElementById('btn-import-db');
+        if (importBtn) {
+            importBtn.addEventListener('click', () => {
+                const fileInput = document.getElementById('import-file');
+                if (fileInput.files.length === 0) {
+                    alert("Please select a JSON file to import.");
+                    return;
+                }
+
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const parsedData = JSON.parse(e.target.result);
+                        if (parsedData.settings && parsedData.projects) {
+                            Store.data = parsedData;
+                            Store.save();
+                            alert("Database imported successfully!");
+                            window.location.reload();
+                        } else {
+                            alert("Invalid Hacktrack backup file.");
+                        }
+                    } catch (err) {
+                        alert("Error parsing JSON backup file.");
+                    }
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        const nukeBtn = document.getElementById('btn-nuke-db');
+        if (nukeBtn) {
+            nukeBtn.addEventListener('click', () => {
+                if (confirm("WARNING: This will instantly obliterate all your projects, logged hours, and goals. Are you sure?")) {
+                    if (confirm("Are you REALLY sure? This cannot be undone unless you have an exported backup!")) {
+                        localStorage.removeItem('hacktrak_db');
+                        window.location.reload();
+                    }
                 }
             });
         }
