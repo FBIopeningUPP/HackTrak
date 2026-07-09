@@ -244,7 +244,7 @@ const Views = {
                             </select>
 
                             <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                                <input id="log-amount" type="number" step="0.25" min="0.25" placeholder="Hours (e.g. 2.5)" required class="neu-border" style="padding:0.75rem; font-size: 1.1rem; outline: none; flex-grow: 1;">
+                                <input id="log-amount" type="number" step="any" min="0.1" placeholder="Hours (e.g. 2.5)" required class="neu-border" style="padding:0.75rem; font-size: 1.1rem; outline: none; flex-grow: 1;">
                                 <input id="log-date" type="date" required class="neu-border" style="padding: 0.75rem; font-size: 1.1rem; outline: none; flex-grow: 1;"value="${new Date().toISOString().split('T')[0]}">
                             </div>
 
