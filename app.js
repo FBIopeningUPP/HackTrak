@@ -199,6 +199,22 @@ const Views = {
                 ? `<button id="btn-submit-timesheet" style="background: var(--secondary); padding: 1.5rem; font-weight: 900; font-size: 1.5rem; width: 100%; margin-top: 2rem; cursor: pointer; text-transform: uppercase;" class="neu-border neu-shadow">Submit ${totalUnsubmitted} Hours to Timesheet</button>`
                 : '';
 
+            const pastSubmissions = Store.data.submissions.length === 0
+                ? `<p style="font-weight: bold; font-size: 1.2rem;">No timesheet submissions yet.</p>`
+                : `<div style="display: flex; flex-direction: column; gap: 1rem;">` +
+                  Store.data.submissions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).map(sub => `
+                      <div style="background: var(--bg-color); padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;" class="neu-border neu-shadow">
+                          <div>
+                              <div style="font-weight: 900; font-size: 1.2rem; margin-bottom: 0.25rem; text-transform: uppercase;">Timesheet Batch</div>
+                              <div style="font-weight: bold; font-size: 0.9rem; color: #333;">Logged on: ${Store.helpers.formatDate(sub.timestamp)}</div>
+                          </div>
+                          <div style="display: flex; align-items: center; gap: 1rem;">
+                              <div style="font-weight: 900; font-size: 1.6rem;">${sub.totalHours} <span style="font-size: 0.9rem;">HRS</span></div>
+                              <span style="background: var(--primary); padding: 0.35rem 0.6rem; font-weight: 900; font-size: 0.8rem; text-transform: uppercase;" class="neu-border">Approved</span>
+                          </div>
+                        </div>
+                    `).join('') + `</div>`;
+
             return `
                 <h2 class="view-title">Timeline Logger</h2>
 
@@ -225,6 +241,11 @@ const Views = {
                     </div>
                     ${bankList}
                     ${submitBtn}
+                </div>
+
+                <div style="margin-bottom: 3rem; padding-top: 2rem; border-top: 4px solid var(--text-color);">
+                    <h3 style="text-transform: uppercase; font-weight: 900; font-size: 1.5rem;">Audit Log (History)</h3>
+                    ${pastSubmissions}
                 </div>
             `;
         },
@@ -271,7 +292,7 @@ const Views = {
                         </div>
                     `;
                 }).join('');
-
+            
             return `
                 <h2 class="view-title">Command Center</h2>
 
