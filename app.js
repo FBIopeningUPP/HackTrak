@@ -83,7 +83,7 @@ const Views = {
             : Store.data.goals.map(g => `
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--white); margin-bottom: 1rem;" class="neu-border neu-shadow">
                         <span style="font-weight: 900; font-size: 1.2rem;">${g.name}</span>
-                        <span style="font-weight: 900; font-size: 1.2rem;">$${g.costUsd.toFixed(2)}</span>
+                        <span style="font-weight: 900; font-size: 1.2rem;">${g.hoursNeeded} HRS</span>
                         <button data-delete-goal="${g.id}" style="background: var(--secondary); padding: 0.5rem 1rem; font-weight: bold; cursor: pointer;" class="neu-border neu-shadow">REMOVE</button>
                 </div>
             `).join('');
@@ -119,7 +119,7 @@ const Views = {
                     <!-- Add Goal Form -->
                     <form id="add-goal-form" style="display: flex; gap: 0.5rem; margin-bottom: 2rem; align-items: flex-start;">
                         <input id="goal-name" type="text" placeholder="Goal Name (e.g. Flight)" required class="neu-border" style="padding: 0.5rem; flex-grow: 1; outline: none;">
-                        <input id="goal-cost" type="number" placeholder="Cost (USD)" required class="neu-border" style="padding: 0.5rem; width: 120px; outline: none;">
+                        <input id="goal-cost" type="number" placeholder="Hours" required class="neu-border" style="padding: 0.5rem; width: 120px; outline: none;">
                         <button type="submit" style="background: var(--primary); padding: 0.5rem 1rem; font-weight: 900; cursor: pointer;" class="neu-border neu-shadow">+</button>
                     </form>
                     <!-- Rendered Goals -->
@@ -130,7 +130,75 @@ const Views = {
 
             </div>
         `;
-    }
+    },
+
+    Projects() {
+        const activeProjects = Store.data.projects.filter(p => !p.archived);
+
+        const projectsList = activeProjects.length === 0
+            ? `<div style="padding: 3rem; background: var(--white); text-align: center;" class="neu-border neu-shadow"><h3 style="font-weight: 900; font-size: 1.5rem;">NO PROJECTS YET</h3><p style="font-weight: bold; margin-top: 1rem;">Initialize a project below to start logging hours against it.</p></div>`
+            : `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; align-items: stretch;">` +
+                activeProjects.map(p => `
+                   <div style="background: var(--white); padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;" class="neu-border neu-shadow"> 
+                   <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="font-weight: 900; font-size: 1.5rem; word-break: break-word;">${p.name}</h3>
+                            <span style="background: var(--primary); padding: 0.25rem 0.5rem; font-weight: 900; white-space: nowrap;" class="neu-border">${Store.helpers.getProjectTotalHours(p.id)} HRS</span>
+                        </div>
+                    </div>
+                    <div style="font-weight: 900; font-size: 0.9rem;">Launched: ${Store.helpers.formatDate(p.createdAt)}</div>
+                    </div>
+                    </div>
+                `).join('') + `</div>`;
+
+                return `
+                    <h2 class="view-title">Project Roster</h2>
+                    <!-- Create Project Form -->
+                    <div style="background: var(--tertiary); padding: 1.5rem; margin-bottom: 2.5rem;" class="neu-border neu-shadow">
+                        <h3 style="margin-bottom: 1rem; color: white; text-transform: uppercase; font-weight: 900;">Initialize New Project</h3>
+                        <form id="add-project-form" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <input id="project-name" type="text" placeholder="Project Name" required class="neu-border" style="padding: 0.75rem; font-size: 1.1rem; outline: none;">
+                            <textarea id="project-notes" placeholder="Scope / Description" class="neu-border" style="padding: 0.75rem; font-size: 1.1rem; outline: none; resize: vertical; min-height: 80px;"></textarea>
+                            <button type="submit" style="background: var(--primary); padding: 1rem; font-weight: 900; font-size: 1.2rem; cursor: pointer; text-transform: uppercase;" class="neu-border neu-shadow">CREATE PROJECT</button>
+                        </form>
+                    </div>
+
+                    ${projectsList}
+                `;
+        },
+        Timeline() {
+            const activeProjects = Store.data.projects.filter(p => !p.archived);
+
+            const projectOptions = activeProjects.length === 0
+                ? `<option value="" disabled selected>No active projects. Go create one!</option>`
+                : activeProjects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+            return `
+                <h2 class="view-title">Timeline Logger</h2>
+
+                <div style="background: var(--tertiary); padding: 1.5rem; margin-bottom: 2.5rem;" class="neu-border neu-shadow">
+                    <h3 style="margin-bottom: 1rem; color: white; text-transform: uppercase; font-weight: 900;">Log Work Hours</h3>
+
+                    <form id="log-hours-form" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <select id="log-project" required class="neu-border" style="padding: 0.75rem; font-size: 1.1rem; outline: none; cursor: pointer;">
+                            ${projectOptions}
+                        </select>
+
+                        <input id="log-amount" type="number" step="0.25" min="0.25" placeholder="Hours (e.g. 2.5)" required class="neu-border" style="padding: 0.75rem; font-size: 1.1rem; outline: none;">
+
+                        <input id="log-desc" type="text" placeholder="What did you do?" required class="neu-border" style="padding: 0.75rem; font-size: 1.1rem; outline: none;">
+
+                        <button type="submit" ${activeProjects.length === 0 ? 'disabled' : ''} style="background: var(--primary); padding: 1rem; font-weight: 900; font-size: 1.2rem; cursor: pointer; text-transform: uppercase;" class="neu-border neu-shadow">RECORD HOURS</button>
+                    </form>
+                </div>
+
+                <div id="unsubmitted-bank">
+                    <!-- We will build the Bank ledger in the next step -->
+                    <h3 style="text-transform: uppercase; font-weight: 900; margin-bottom: 1rem;">Unsubmitted Bank</h3>
+                    <p>Your logged hours will appear here...</p>
+                </div>
+            `;
+        },
 };
 
 const UI = {
@@ -154,8 +222,10 @@ const UI = {
             mainContent = Views.Dashboard();
         } else if (Store.currentRoute === '#settings') {
             mainContent = Views.Settings();
-        } else {
-            mainContent = `<h2 class="view-title">404 - Page Not Found</h2>`;
+        } else if (Store.currentRoute === '#projects'){
+            mainContent = Views.Projects();
+        } else if (Store.currentRoute === '#timeline') {
+            mainContent = Views.Timeline();
         }
 
         this.root.innerHTML = `
@@ -184,12 +254,12 @@ const UI = {
             addGoalForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const name = document.getElementById('goal-name').value.trim();
-                const costUsd = parseFloat(document.getElementById('goal-cost').value);
+                const hoursNeeded = parseFloat(document.getElementById('goal-cost').value);
 
                 Store.data.goals.push({
                     id: Store.generateId(),
                     name: name,
-                    costUsd: costUsd,
+                    hoursNeeded: hoursNeeded,
                 });
                 Store.save()
             });
@@ -203,6 +273,53 @@ const UI = {
                     Store.data.goals = Store.data.goals.filter(g => g.id !== goalId);
                     Store.save();
                 }
+            });
+        }
+
+        const addProjectForm = document.getElementById('add-project-form');
+        if (addProjectForm) {
+            addProjectForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                Store.data.projects.push({
+                    id: Store.generateId(),
+                    name: document.getElementById('project-name').value.trim(),
+                    notes: document.getElementById('project-notes').value.trim(),
+                    createdAt: new Date().toISOString(),
+                    archived: false,
+                });
+                Store.save();
+            });
+        }
+
+        const mainElement = document.querySelector('main');
+        if (mainElement) {
+            mainElement.addEventListener('click', (e) => {
+                if (e.target.hasAttribute('data-archive-project')) {
+                    if (confirm("Archive this project? You won't be able to log new hours to it.")) {
+                        const projectId = e.target.getAttribute('data-archive-project');
+                        const proj = Store.data.projects.find(p => p.id === projectId);
+                        if (proj) {
+                            proj.archived = true;
+                            Store.save();
+                        }
+                    }
+                }
+            });
+        }
+
+        const logHoursForm = document.getElementById('log-hours-form');
+        if (logHoursForm) {
+            logHoursForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                Store.data.hours.push({
+                    id: Store.generateId(),
+                    projectId: document.getElementById('log-project').value,
+                    amount: parseFloat(document.getElementById('log-amount').value),
+                    description: document.getElementById('log-desc').value.trim(),
+                    createdAt: new Date().toISOString(),
+                    submitted: false
+                });
+                Store.save();
             });
         }
     }
