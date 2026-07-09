@@ -91,23 +91,23 @@ const Views = {
         return `
             <h2 class="view-title">System Settings</h2>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; align-items: start;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; align-items: start;">
 
                 <!-- GLOBAL RATES -->
-                <div style="background: var(--primary); padding: 2rem;" class="neu-border neu-shadow">
+                <div style="background: var(--primary); padding: 1.5rem;" class="neu-border neu-shadow">
                     <h3 style="margin-bottom: 1.5rem; text-transform: uppercase; font-weight: 900;">Global Rates</h3>
-                    <form id="settings-form" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <form id="settings-form" style="display: flex; flex-direction: column; gap: 0.75rem;">
                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                             <label style="font-weight: 900; text-transform: uppercase;">Exchange Rate (INR/USD)</label>
-                            <input name="exchangeRate" type="number" step="0.01" value="${Store.data.settings.exchangeRate}" class="neu-border" style="padding: 1rem; font-size: 1.2rem; outline: none;">
+                            <input name="exchangeRate" type="number" step="0.01" value="${Store.data.settings.exchangeRate}" class="neu-border" style="padding: 1rem; font-size: 1rem; outline: none;">
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                             <label style="font-weight: 900; text-transform: uppercase;">Stipend Rate (USD/Hr)</label>
-                            <input name="stipendRate" type="number" step="0.01" value="${Store.data.settings.stipendRate}" class="neu-border" style="padding: 1rem; font-size: 1.2rem; outline: none;">
+                            <input name="stipendRate" type="number" step="0.01" value="${Store.data.settings.stipendRate}" class="neu-border" style="padding: 1rem; font-size: 1rem; outline: none;">
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                             <label style="font-weight: 900; text-transform: uppercase;">Ticket Goal (Hours)</label>
-                            <input name="ticketHours" type="number" value="${Store.data.settings.ticketHours}" class="neu-border" style="padding: 1rem; font-size: 1.2rem; outline: none;">
+                            <input name="ticketHours" type="number" value="${Store.data.settings.ticketHours}" class="neu-border" style="padding: 1rem; font-size: 1rem; outline: none;">
                         </div>
                     </form>
                 </div>
@@ -118,8 +118,8 @@ const Views = {
 
                     <!-- Add Goal Form -->
                     <form id="add-goal-form" style="display: flex; gap: 0.5rem; margin-bottom: 2rem;">
-                        <input id="goal-name" type="text" placeholder="Goal Name (e.g. Flight)" required class="neu-border" style="padding: 0.8rem; flex-grow: 1; outline: none;">
-                        <input id="goal-cost" type="number" placeholder="Cost (USD)" required class="neu-border" style="padding: 0.8rem; width: 120px; outline: none;">
+                        <input id="goal-name" type="text" placeholder="Goal Name (e.g. Flight)" required class="neu-border" style="padding: 0.5rem; flex-grow: 1; outline: none;">
+                        <input id="goal-cost" type="number" placeholder="Cost (USD)" required class="neu-border" style="padding: 0.5rem; width: 120px; outline: none;">
                         <button type="submit" style="background: var(--primary); padding: 0.8rem; font-weight: 900; cursor: pointer;" class="neu-border neu- shadow">+</button>
                     </form>
                     <!-- Rendered Goals -->
