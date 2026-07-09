@@ -84,7 +84,7 @@ const Views = {
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--white); margin-bottom: 1rem;" class="neu-border neu-shadow">
                         <span style="font-weight: 900; font-size: 1.2rem;">${g.name}</span>
                         <span style="font-weight: 900; font-size: 1.2rem;">$${g.costUsd.toFixed(2)}</span>
-                        <button data-delete-goal="${g.id}" style="background: var(--secondary); padding: 0.5rem 1rem; font-weight: bold; cursor: pointer;" class="neu- border neu-shadow">REMOVE</button>
+                        <button data-delete-goal="${g.id}" style="background: var(--secondary); padding: 0.5rem 1rem; font-weight: bold; cursor: pointer;" class="neu-border neu-shadow">REMOVE</button>
                 </div>
             `).join('');
 
@@ -120,7 +120,7 @@ const Views = {
                     <form id="add-goal-form" style="display: flex; gap: 0.5rem; margin-bottom: 2rem; align-items: flex-start;">
                         <input id="goal-name" type="text" placeholder="Goal Name (e.g. Flight)" required class="neu-border" style="padding: 0.5rem; flex-grow: 1; outline: none;">
                         <input id="goal-cost" type="number" placeholder="Cost (USD)" required class="neu-border" style="padding: 0.5rem; width: 120px; outline: none;">
-                        <button type="submit" style="background: var(--primary); padding: 0.8rem; font-weight: 900; cursor: pointer;" class="neu-border neu- shadow">+</button>
+                        <button type="submit" style="background: var(--primary); padding: 0.5rem 1rem; font-weight: 900; cursor: pointer;" class="neu-border neu-shadow">+</button>
                     </form>
                     <!-- Rendered Goals -->
                     <div id="goals-list">
