@@ -102,7 +102,7 @@ const Views = {
                             <input name="exchangeRate" type="number" step="0.01" value="${Store.data.settings.exchangeRate}" class="neu-border" style="padding: 1rem; font-size: 1rem; outline: none;">
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                            <label style="font-weight: 900; text-transform: uppercase;">Stipend Rate (USD/Hr)</label>
+                            <label style="font-weight: 900; text-transform: uppercase;">Travel Grant Rate (USD/Hr)</label>
                             <input name="stipendRate" type="number" step="0.01" value="${Store.data.settings.stipendRate}" class="neu-border" style="padding: 1rem; font-size: 1rem; outline: none;">
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
@@ -182,14 +182,17 @@ const Views = {
                   unsubmittedHours.map(h => {
                       const proj = Store.data.projects.find(p => p.id === h.projectId);
                       return `
-                      <div style="background: var(--white); padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;" class="neu-border neu-shadow">
-                          <div>
-                              <div style="font-weight: 900; font-size: 1.3rem; margin-bottom: 0.25rem;">${proj ? proj.name : 'Unknown Project'}</div>
-                              <div style="font-weight: bold; font-size: 1rem;">${h.description}</div>
+                          <div style="background: var(--white); padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;" class="neu-border neu-shadow">
+                              <div>
+                                  <div style="font-weight: 900; font-size: 1.3rem; margin-bottom: 0.25rem;">${proj ? proj.name : 'Unknown Project'}</div>
+                                  <div style="font-weight: bold; font-size: 1rem;">${h.description}</div>
+                              </div>
+                              <div style="display: flex; align-items: center; gap: 1.5rem;">
+                                  <div style="font-weight: 900; font-size: 2rem;">${h.amount} <span style="font-size: 1rem;">HRS</span></div>
+                                  <button data-delete-hour="${h.id}" style="background: var(--secondary); padding: 0.5rem 1rem; font-weight: 900; cursor: pointer; height: fit-content;" class="neu-border neu-shadow">X</button>
+                              </div>
                           </div>
-                          <div style="font-weight: 900; font-size: 2rem;">${h.amount} <span style="font-size: 1rem;">HRS</span></div>
-                      </div>
-                      `;
+                          `;
                   }).join('') + `</div>`;
 
             const submitBtn = unsubmittedHours.length > 0
@@ -225,6 +228,78 @@ const Views = {
                 </div>
             `;
         },
+
+        Dashboard() {
+            const totalApprovedHours = Store.helpers.getTotalApprovedHours();
+            const stipendRate = Store.data.settings.stipendRate;
+            const exchangeRate = Store.data.settings.exchangeRate;
+
+            const totalUsd = totalApprovedHours * stipendRate;
+            const totalInr = totalUsd * exchangeRate;
+
+            let remainingHours = totalApprovedHours;
+
+            const goalsRender = Store.data.goals.length === 0
+                ? `<div style="background: var(--white); padding: 1.5rem; font-weight: bold; text-align: center; text-transform: uppercase;" class="neu-border neu-shadow">No custom goals set. Head to settings.</div>`
+                : Store.data.goals.map(g => {
+                    const hoursNeeded = parseFloat(g.hoursNeeded) || 1;
+                    let hoursAllocated = 0;
+
+                    if (remainingHours >= hoursNeeded) {
+                        hoursAllocated = hoursNeeded;
+                        remainingHours -= hoursNeeded;
+                    } else if (remainingHours > 0) {
+                        hoursAllocated = remainingHours;
+                        remainingHours = 0;
+                    }
+
+                    const percentComplete = Math.min(100, Math.floor((hoursAllocated / hoursNeeded) * 100));
+                    const isComplete = percentComplete === 100;
+
+                    return `
+                        <div style="background: var(--white); padding: 1.5rem; margin-bottom: 1.5rem;" class="neu-border neu-shadow">
+                            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem;">
+                                <h4 style="font-weight: 900; font-size: 1.4rem; text-transform: uppercase;">${g.name}</h4>
+                                <span style="font-weight: 900; font-size: 1.2rem;">${hoursAllocated} / ${hoursNeeded} HRS</span>
+                            </div>
+
+                            <!-- Neubrutalist Progress Bar -->
+                            <div style="height: 30px; background: var(--bg-color); width: 100%; position: relative;" class="neu-border">
+                                <div style="height: 100%; width: ${percentComplete}%; background: ${isComplete ? 'var(--tertiary)' : 'var(--primary)'}; border-right:${percentComplete > 0 && !isComplete ? '4px solid var(--text-color)' : 'none'}; transition: width 0.5s ease;"></div>
+                                <span style="position: absolute; left: 10px; top: 3px; font-weight: 900; color: var(--text-color);">${percentComplete}%</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            return `
+                <h2 class="view-title">Command Center</h2>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 3.5rem;">
+
+                    <div style="background: var(--secondary); padding: 2rem; display: flex; flex-direction: column; justify-content: center;" class="neu-border neu-shadow">
+                        <h3 style="font-weight: 900; text-transform: uppercase; margin-bottom: 0.5rem;">Total Approved</h3>
+                        <span style="font-weight: 900; font-size: 3.5rem;">${totalApprovedHours} <span style="font-size: 1.5rem;">HRS</span></span>
+                    </div>
+
+                    <div style="background: var(--tertiary); padding: 2rem; display: flex; flex-direction: column; justify-content: center;" class="neu-border neu-shadow">
+                        <h3 style="color: white; font-weight: 900; text-transform: uppercase; margin-bottom: 0.5rem;">Travel Grant (USD)</h3>
+                        <span style="color: white; font-weight: 900; font-size: 3.5rem;">$${totalUsd.toFixed(2)}</span>
+                    </div>
+
+                    <div style="background: var(--primary); padding: 2rem; display: flex; flex-direction: column; justify-content: center;" class="neu-border neu-shadow">
+                        <h3 style="font-weight: 900; text-transform: uppercase; margin-bottom: 0.5rem;">Travel Grant (INR)</h3>
+                        <span style="font-weight: 900; font-size: 3.5rem;">₹${totalInr.toFixed(2)}</span>
+                    </div>
+
+                </div>
+
+                <h3 style="font-size: 2.5rem; font-weight: 900; text-transform: uppercase; margin-bottom: 1.5rem; letter-spacing: -1px;">Funding Waterfall</h3>
+                <div style="background: var(--white); padding: 2rem; border: 4px solid var(--text-color); box-shadow: 8px 8px 0px var(--text-color);">
+                    ${goalsRender}
+                </div>
+            `;
+        }
 };
 
 const UI = {
@@ -364,6 +439,16 @@ const UI = {
 
                     unsubmittedHours.forEach(h => h.submitted = true);
 
+                    Store.save();
+                }
+            });
+        }
+        const bankContainer = document.getElementById('unsubmitted-bank');
+        if (bankContainer) {
+            bankContainer.addEventListener('click', (e) => {
+                if (e.target.hasAttribute('data-delete-hour')) {
+                    const hourId = e.target.getAttribute('data-delete-hour');
+                    Store.data.hours = Store.data.hours.filter(h => h.id !== hourId);
                     Store.save();
                 }
             });
