@@ -1,12 +1,18 @@
 :root {
-    --bg-color: #f4f4f4;
+    --bg-color: #FDFBF4;
+    --white: #FDFBF4;
     --text-color: #000000;
-    --primary: #ffc900;
-    --secondary: #ff90e8;
-    --tertiary: #23a094;
-    --white: #ffffff;
-    --border-width: 4px;
+
+    --primary: #FF9865;
+    --secondary: #A3E635;
+    --tertiary: #6495ED;
+
+    --accent-sky: #7DD3FC;
+    --gradient-special: linear-gradient(135deg, #C4B5FD 0%, #FF986 100%);
+
+    --border-width: 3px;
     --shadow-offset: 8px
+    --border-radius: 12px;
 }
 
 * {
@@ -26,6 +32,7 @@ body {
 
 .neu-border {
     border: var(--border-width) solid var(--text-color);
+    border-radius: 12px;
 }
 
 .neu-shadow {
@@ -33,9 +40,13 @@ body {
     transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-button.neu-shadow:active, a.neu-shadow:active {
-    transform: translate(var(--shadow-offset), var(--shadow-offset));
-    box-shadow: 0px 0px 0px var(--text-color);
+button.neu-shadow, a.neu-shadow {
+    border-radius: 12px;
+}
+
+button.neu-shadow:hover, a.neu-shadow:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 12px 12px 0px var(--text-color);
 }
 
 nav {
@@ -185,4 +196,38 @@ main {
 
 .form-group input:focus, .form-group textarea:focus {
     background: var(--primary);
+}
+
+body.dark-mode {
+    --bg-color: #211E1D;
+    --white: #2A2625;
+    --text-color: #FDFBF4;
+
+    --primary: #FF8552;
+    --secondary: #94D82D;
+    --tertiary: #5A85D6;
+
+    --accent-sky: #38BDF8;
+    --gradient-special: linear-gradient(135deg, #9C83E0 0%, #FF8552 100%);
+
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+body.dark-mode .neu-shadow {
+    box-shadow: 6px 6px 0px #000000;
+}
+
+body.dark-mode .neu-border {
+    border: 3px solid #000000;
+}
+
+button.neu-shadow:hover, a.neu-shadow:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 12px 12px 0px var(--text-color);
+}
+
+button.neu-shadow:active, a.neu-shadow:active {
+    transform: translate(var(--shadow-offset), var(--shadow-offset));
+    box-shadow: 0px 0px 0px var(--text-color);
 }

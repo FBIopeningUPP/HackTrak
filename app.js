@@ -70,7 +70,7 @@ const Views = {
     Dashboard() {
         return `
             <h2 class="view-title">Command Center</h2>
-            <div style="background: var(--tertiary); padding: 3rem;" class="neu-border neu-shadow">
+            <div style="background: var(--gradient-special); padding: 3rem;" class="neu-border neu-shadow">
                 <h3 style="color: white; font-size: 2rem; text-transform: uppercase; font-weight: 900;">Welcome to HackTrak</h3>
                 <p style="color: white; font-weight: bold; margin-top: 1rem; font-size: 1.2rem;">The Waterfall Math Engine will be rendered here soon.</p>
             </div>
@@ -93,7 +93,6 @@ const Views = {
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; align-items: start;">
 
-                <!-- GLOBAL RATES -->
                 <div style="background: var(--primary); padding: 1.5rem;" class="neu-border neu-shadow">
                     <h3 style="margin-bottom: 1.5rem; text-transform: uppercase; font-weight: 900;">Global Rates</h3>
                     <form id="settings-form" style="display: flex; flex-direction: column; gap: 0.75rem;">
@@ -112,15 +111,12 @@ const Views = {
                     </form>
                 </div>
 
-                <!-- CUSTOM GOALS MANAGER -->
                 <div style="background: var(--tertiary); padding: 2rem;" class="neu-border neu-shadow">
                     <h3 style="margin-bottom: 1.5rem; color: white; text-transform: uppercase; font-weight: 900;">Custom Funding Goals</h3>
-
-                    <!-- Add Goal Form -->
-                    <form id="add-goal-form" style="display: flex; gap: 0.5rem; margin-bottom: 2rem; align-items: flex-start;">
-                        <input id="goal-name" type="text" placeholder="Goal Name (e.g. Flight)" required class="neu-border" style="padding: 0.5rem; flex-grow: 1; outline: none;">
-                        <input id="goal-cost" type="number" placeholder="Hours" required class="neu-border" style="padding: 0.5rem; width: 120px; outline: none;">
-                        <button type="submit" style="background: var(--primary); padding: 0.5rem 1rem; font-weight: 900; cursor: pointer;" class="neu-border neu-shadow">+</button>
+                    <form id="add-goal-form" style="display: flex; gap: 0.5rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: stretch;">
+                        <input id="goal-name" type="text" placeholder="Goal Name" required class="neu-border" style="padding: 0.5rem; flex-grow: 1;outline: none; min-width: 120px;">
+                        <input id="goal-cost" type="number" placeholder="Hrs" required class="neu-border" style="padding: 0.5rem; width: 75px;outline: none;">
+                        <button type="submit" style="background: var(--primary); padding: 0.5rem 1rem; font-weight: 900; cursor: pointer; color: var(--bg-color);" class="neu-border neu-shadow">+</button>
                     </form>
                     <!-- Rendered Goals -->
                     <div id="goals-list">
@@ -296,8 +292,8 @@ const Views = {
                     const isComplete = percentComplete === 100;
 
                     return `
-                        <div style="background: var(--white); padding: 1.5rem; margin-bottom: 1.5rem;" class="neu-border neu-shadow">
-                            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem;">
+                            <div style="background: var(--bg-color); padding: 1.5rem; margin-bottom: 1.5rem;" class="neu-border neu-shadow">
+                                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem;">
                                 <h4 style="font-weight: 900; font-size: 1.4rem; text-transform: uppercase;">${g.name}</h4>
                                 <span style="font-weight: 900; font-size: 1.2rem;">${hoursAllocated} / ${hoursNeeded} HRS</span>
                             </div>
@@ -311,18 +307,34 @@ const Views = {
                     `;
                 }).join('');
 
+                const allHours = Store.data.projects.reduce((sum, p) => sum + Store.helpers.getProjectTotalHours(p.id), 0);
+
+                const colors = ['var(--primary)', 'var(--secondary)', 'var(--tertiary)'];
+
                 const projectBreakdown = Store.data.projects.length === 0
-                    ? `<p style="font-weight: bold; font-size: 1.2rem;">No projects initialized.</p>`
-                    : `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">` +
-                      Store.data.projects.map(p => `
-                          <div style="background: var(--bg-color); padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;" class="neu-border neu-shadow">
-                              <div>
-                                  <div style="font-weight: 900; font-size: 1.2rem; margin-bottom: 0.25rem; word-break: break-word;">${p.name}</div>
-                                  <div style="font-weight: bold; font-size: 0.8rem; color: #555;">${p.archived ? 'ARCHIVED' : 'ACTIVE'}</div>
+                    ? `<p style="fontweight: bold; font-size: 1.2rem;">No projects</p>`
+                    : `<div style="display: flex; flex-direction: column; gap: 2rem;">` +
+                        Store.data.projects.map((p, index) => {
+                            const pTotal = Store.helpers.getProjectTotalHours(p.id);
+
+                            const percent = allHours === 0 ? 0 : Math.floor((pTotal / allHours) * 100);
+
+                            const barColor = colors[index % colors.length];
+
+                            return `
+                              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                  <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                      <div style="font-weight: 900; font-size: 1.4rem; text-transform: uppercase;">${p.name} <span style="font-size: 0.8rem; color: gray;">${p.archived ? '(ARCHIVED)' : ''}</span></div>
+                                      <div style="font-weight: 900; font-size: 1.4rem;">${pTotal} HRS <span style="font-size: 1rem; color: var(--text-color); opacity: 0.8;">(${percent}%)</span></div>
+                                  </div>
+
+                                  <!-- The Dynamic Brutalist Bar Chart -->
+                                  <div style="height: 35px; background: var(--bg-color); width: 100%; overflow: hidden;" class="neu-border neu-shadow">
+                                      <div style="height: 100%; width: ${percent}%; background: ${barColor}; border-right: ${percent > 0 ? '3px solid var(--text-color)' : 'none'}; transition: width 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
+                                  </div>
                               </div>
-                              <div style="font-weight: 900; font-size: 1.5rem; white-space: nowrap;">${Store.helpers.getProjectTotalHours(p.id)} <span style="font-size: 0.8rem;">HRS</span></div>
-                          </div>
-                      `).join('') + `</div>`;
+                              `;
+                          }).join('') + `</div>`;
             
             return `
                 <h2 class="view-title">Command Center</h2>
@@ -369,11 +381,14 @@ const UI = {
         const navHTML = `
             <nav>
                 <h1 class="neu-border neu-shadow">HackTrak</h1>
-                <div class="nav-links">
-                    <a href="#dashboard" class="neu-border neu-shadow ${Store.currentRoute === '#dashboard' || Store.currentRoute === '' ? 'active' : ''}">Dashboard</a>
+                <div class="nav-links" style="display: flex; align-items: center; gap: 1rem;">
+                    <a href="#dashboard" class="neu-border neu-shadow ${Store.currentRoute === '#dashboard' || Store.currentRoute === '' ? 'active' :''}">Dashboard</a>
                     <a href="#projects" class="neu-border neu-shadow ${Store.currentRoute === '#projects' ? 'active' : ''}">Projects</a>
                     <a href="#timeline" class="neu-border neu-shadow ${Store.currentRoute === '#timeline' ? 'active' : ''}">Timeline</a>
                     <a href="#settings" class="neu-border neu-shadow ${Store.currentRoute === '#settings' ? 'active' : ''}">Settings</a>
+                    <button id="btn-theme-toggle" style="background: var(--text-color); color: var(--bg-color); padding: 0.5rem 1rem; font-weight: 900; cursor: pointer; margin-left: 1rem; font-size: 1rem;" class="neu-border neu-shadow">
+                            ${Store.data.settings.theme === 'dark' ? 'MODE: 🌙 DARK' : 'MODE: ☀️ LIGHT'}
+                    </button>
                 </div>
             </nav>
         `;
@@ -387,6 +402,12 @@ const UI = {
             mainContent = Views.Projects();
         } else if (Store.currentRoute === '#timeline') {
             mainContent = Views.Timeline();
+        } 
+        
+        if (Store.data.settings.theme === 'dark') {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
         }
 
         this.root.innerHTML = `
@@ -564,6 +585,15 @@ const UI = {
                         window.location.reload();
                     }
                 }
+            });
+        }
+
+        const themeToggleBtn = document.getElementById('btn-theme-toggle');
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = Store.data.settings.theme || 'light';
+                Store.data.settings.theme = currentTheme === 'dark' ? 'light' : 'dark';
+                Store.save();
             });
         }
     }
