@@ -16,9 +16,11 @@ A fully, local offline tracker, it tracks ur horizons progress basically a track
 - zero backend as it runs locally 
 
 ## How to use it
-1. Head to settings to set your exchange rate stipend rate funding goals and all of that stuff
-2. Go to Projcets to initialize a new project
-3. Use the timeline tab to start logging hours for your active projects
+1. Clone the repository
+2. Open The Index.html, if u are in vs code use plugins to start ur localhost server
+3. Head to settings to set your exchange rate stipend rate funding goals and all of that stuff
+4. Go to Projcets to initialize a new project
+5. Use the timeline tab to start logging hours for your active projects
 4. check the dashboard to see the math automatically display your hours into % and draw the progress bars and everything
 
 ## Usaage of AI
